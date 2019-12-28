@@ -33,8 +33,7 @@ type User struct {
 	// Password holds the value of the "password" field.
 	Password string `graphql:"-" json:"-"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The edge values are being populated by the UserQuery
-	// when eager-loading is set.
+	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges struct {
 		// Card holds the value of the card edge.
 		Card *Card
