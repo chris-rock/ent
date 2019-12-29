@@ -53,12 +53,12 @@ type User struct {
 		Team *Pet
 		// Spouse holds the value of the spouse edge.
 		Spouse    *User
-		spouse_id int
+		spouse_id *int
 		// Children holds the value of the children edge.
 		Children []*User
 		// Parent holds the value of the parent edge.
 		Parent    *User
-		parent_id int
+		parent_id *int
 	}
 }
 
@@ -72,6 +72,14 @@ func (*User) scanValues() []interface{} {
 		&sql.NullString{},
 		&sql.NullString{},
 		&sql.NullString{},
+	}
+}
+
+// fkValues returns the types for scanning foreign-keys values from sql.Rows.
+func (*User) fkValues() []interface{} {
+	return []interface{}{
+		&sql.NullInt64{},
+		&sql.NullInt64{},
 	}
 }
 
@@ -116,6 +124,21 @@ func (u *User) assignValues(values ...interface{}) error {
 		return fmt.Errorf("unexpected type %T for field password", values[5])
 	} else if value.Valid {
 		u.Password = value.String
+	}
+	values = values[6:]
+	if len(values) == len(user.ForeignKeys) {
+		if value, ok := values[0].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field spouse_id", value)
+		} else if value.Valid {
+			u.Edges.spouse_id = new(int)
+			*u.Edges.spouse_id = int(value.Int64)
+		}
+		if value, ok := values[0].(*sql.NullInt64); !ok {
+			return fmt.Errorf("unexpected type %T for edge-field parent_id", value)
+		} else if value.Valid {
+			u.Edges.parent_id = new(int)
+			*u.Edges.parent_id = int(value.Int64)
+		}
 	}
 	return nil
 }
